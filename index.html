@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Trello Boards</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<script src="http://code.jquery.com/jquery.min.js"></script>
+  	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+	<!-- Compiled and minified CSS -->
+  	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+  	<!-- Compiled and minified JavaScript -->
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+  	<!-- <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script> -->
+	<script src="https://api.trello.com/1/client.js?key=261124d0733ab966812e18c270fa06d0"></script>
+  	<script type="text/javascript">
+		$(document).ready(function(){
+    		$(".dropdown-button").dropdown();
+		});
+		$(document).ready(function(){
+    		 $(".button-collapse").sideNav();
+		});
+	</script>
+
+</head>
+<body>
+	<!-- Dropdown Structure -->
+	<ul id="dropdown1" class="dropdown-content">
+	  <li><a href="#!">one</a></li>
+	  <li><a href="#!">two</a></li>
+	  <li class="divider"></li>
+	  <li><a href="#!">three</a></li>
+	</ul>
+
+	<ul id="dropdown2" class="dropdown-content">
+	  <li><a href="#!">one</a></li>
+	  <li><a href="#!">two</a></li>
+	  <li class="divider"></li>
+	  <li><a href="#!">three</a></li>
+	</ul>
+	
+	<nav>
+	  <div class="nav-wrapper">
+	    <a href="#" class="brand-logo">Project</a>
+	    <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+	    <ul class="right hide-on-med-and-down">
+	      <li id="loggedout"> <a id="connectLink" href="#">Connect To Trello</a></li>
+	      <li id="loggedin">
+	      	<ul>
+	      		<li>
+	      		<span id="fullName"></span>
+	      		</li>
+	      		<li><a id="disconnect" href="#">Log Out</a></li>
+	      		 <li><a class="dropdown-button" href="#!" data-activates="dropdown1">Boards<i class="material-icons right">arrow_drop_down</i></a></li>
+			      <li>
+			      	<form>
+			        	<div class="input-field">
+				          	<input  id="search" type="search" required>
+				          	<label for="search"><i class="material-icons">search</i></label>
+				          	<i class="material-icons">close</i>
+			        	</div>
+		      		</form>
+		      	  </li>
+			    
+	      	</ul>
+	      </li>
+	      <!-- Dropdown Trigger -->
+	     </ul>
+
+	    <ul class="side-nav" id="mobile-demo">
+	        <li><a class="dropdown-button" href="#!" data-activates="dropdown2">Boards<i class="material-icons right">arrow_drop_down</i></a></li>
+	      	<li>
+	      	<form>
+	        	<div class="input-field">
+		          	<input id="search" type="search" required>
+		          	<label for="search"><i class="material-icons cyan-text">search</i></label>
+		          	<i class="material-icons">close</i>
+	        	</div>
+      		</form>
+      	  	</li>
+      	</ul>
+
+	  </div>
+	</nav>
+	<!-- <div id="loggedout">
+    <a id="connectLink" href="#">Connect To Trello</a>
+</div> -->
+<!-- 
+<div id="loggedin">
+    <div id="header">
+       
+    </div>
+    
+    <div id="output"></div>
+</div> -->
+</body>
+	<script type="text/javascript">
+	$(window).on('load', function(){
+    // your logic here`enter code here`
+    $("#disconnect").hide();
+    $(".dropdown-button").hide();
+    $("#search").hide();
+	});
+		var onAuthorize = function() {
+    updateLoggedIn();
+    $("#dropdown1").empty();
+    
+    Trello.members.get("me", function(member){
+        $("#fullName").text(member.fullName);
+    	$("#disconnect").show();
+    	$(".dropdown-button").show();
+    	$("#search").show();
+        var $cards = $("<li>")
+            .appendTo("#dropdown1");
+
+        // Output a list of all of the cards that the member 
+        // is assigned to
+        Trello.get("members/me/boards", function(cards) {
+            // $cards.empty();
+            $.each(cards, function(ix, card) {
+                $("<a>")
+                .attr({href: card.url, target: "trello"})
+                .text(card.name)
+                .appendTo($cards);
+            });  
+        });
+    });
+    Trello.get("members/me/boards", { fields: "id", fields: "name"}, function(err, boards) {
+  console.log(boards); // got them!
+  console.log(err); // if something went wrong, this will be non-null
+})
+		};
+
+			var updateLoggedIn = function() {
+			    var isLoggedIn = Trello.authorized();
+			    $("#loggedout").toggle(!isLoggedIn);
+			    $("#loggedin").toggle(isLoggedIn);        
+			};
+			    
+			var logout = function() {
+			    Trello.deauthorize();
+			    updateLoggedIn();
+			};
+			                          
+			Trello.authorize({
+			    interactive:false,
+			    success: onAuthorize
+			});
+
+			$("#connectLink")
+			.click(function(){
+			    Trello.authorize({
+			        type: "popup",
+			        success: onAuthorize
+			    })
+			});
+			    
+			$("#disconnect").click(logout);
+	</script>
+
+</html>
