@@ -80,6 +80,9 @@
 
 	  </div>
 	</nav>
+
+	 <div id="content1"></div>
+
 	<!-- <div id="loggedout">
     <a id="connectLink" href="#">Connect To Trello</a>
 </div> -->
@@ -113,21 +116,27 @@
 
         // Output a list of all of the cards that the member 
         // is assigned to
-        Trello.get("members/me/boards", function(cards) {
+        Trello.get("members/me/boards", { fields: "id", fields: "name"}, function(cards, boards1) {
             // $cards.empty();
             $.each(cards, function(ix, card) {
                 $("<a>")
-                .attr({href: card.url, target: "trello"})
+                .attr({href: card.url, target: "content1"})
                 .text(card.name)
                 .appendTo($cards);
             });  
         });
     });
-    Trello.get("members/me/boards", { fields: "id", fields: "name"}, function(err, boards) {
-  console.log(boards); // got them!
-  console.log(err); // if something went wrong, this will be non-null
-})
-		};
+    Trello.get("members/me/boards", function(err, boards) {
+  	//console.log(boards); // got them!
+  	console.log(Object.keys(err).length);
+  	for (i=0;i<Object.keys(err).length;++i)
+  	{
+  		console.log(err[i].id);
+  		$('#content1').append(err[i].name+"<br />");
+  	}
+  	console.log(err[1].id); // if something went wrong, this will be non-null
+	})
+};
 
 			var updateLoggedIn = function() {
 			    var isLoggedIn = Trello.authorized();
